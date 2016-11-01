@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="./css/app.css" />-->
+		<link rel="stylesheet" type="text/css" href="./css/mui.picker.min.css" />
+		<link rel="stylesheet" href="./css/main.css">
+
+	</head>
+
+	<body>
+
+		<div class="mui-navbar-inner mui-bar mui-bar-nav">
+			<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>返回
+			</button>
+			<h1 class="mui-center mui-title">个人日志</h1>
+		</div>
+		<br/>
+		<div class="mui-content">
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label>项目</label>
+					<input type="text" readonly="readonly" id='proname' style="text-align:right;">
+				</div>
+				<div class="mui-input-row">
+					<label>日期</label>
+					<input type="text" readonly="readonly" id='datepk' data-options='{"type":"date","beginYear":2016,"endYear":2016}' style="text-align:right;">
+
+				</div>
+				<div class="mui-input-row">
+					<label>计划/完成</label>
+					<div id="planflag" class="mui-switch mui-switch-mini " style="text-align:center;">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</div>
+
+			</form>
+
+			<div class="mui-input-row" style="background-color: #FFFFFF;">
+				<label>日志内容<br /><br />
+						<a  onClick="deletecal()">删除日志</a></label>
+
+				<textarea id="stafcalendar" rows="10" placeholder="填写日志"></textarea>
+
+			</div>
+			<br />
+			<button type="button" class="mui-btn mui-btn-primary mui-btn-block" onClick="savecalendar()">保 存</button>
+
+		</div>
+		<script src="./js/mui.min.js"></script>
+		<script src="./js/mui.picker.min.js"></script>
+		<script src="js/app.js "></script>
+		<script src='./libs/easymob-webim-sdk/jquery-1.11.1.js'></script>
+		<script src="./js/main.js"></script>
+		<script>
+			var projectname = "";
+			var projectid = "";
+			var mode = "";
+			var calendarid="";
+			(function($) {
+				$.init();
+				var datepk = $('#datepk')[0];
+				datepk.addEventListener('tap', function() {
+					var optionsJson = this.getAttribute('data-options') || '{}';
+					var options = JSON.parse(optionsJson);
+					var picker = new $.DtPicker(options);
+					picker.show(function(rs) {
+						jQuery('#datepk').val(rs.text);
+						picker.dispose();
+						isrefresh = false;
+						searchcalJ();
+					});
+				}, false);
+				var planflag = $('#planflag')[0];
+				planflag.addEventListener('tap', function() {
+					ChangePlan();
+
+				}, false);
+				$.plusReady(function() {
+					var self = plus.webview.currentWebview();
+					projectname = self.projectname;
+					projectid = self.projectid;
+					jQuery('#proname').val(projectname);
+					showplan();
+					searchcal();
+				});
+
+			})(mui);
+			var settings = app.getSettings();
+			var state = app.getState();
+			var userid = state.id;
+			var department = state.department;
+
+			var nowDate = getNowFormatDate();
+			jQuery('#datepk').val(nowDate.substr(0, 10));
+
+			var isdone = "";
+			var isrefresh = true;
+
+			function searchcal() {
+				var $datepk = jQuery('#datepk');
+				var choosetime = $datepk.val();
+				var today = "";
+				var myDate = getNowFormatDate();
+				if(choosetime == "") {
+					today = myDate;
+					$datepk.val(myDate.substr(0, 10));
+					choosetime = $datepk.val();
+				} else {
+					today = choosetime + " 00:00:00";
+				}
+
+				var url = "http://114.215.94.229/tydtdailynotephp/searchcal.php";
+
+				var data = {
+					userid: userid,
+					projectname: projectid,
+					choosetime: choosetime,
+					isdone: isdone
+				};
+				mui.ajax(url, {
+					data: data,
+					dataType: 'text',
+					type: 'POST',
+					timeout: 10000,
+					success: function(data) {
+						jQuery("#stafcalendar").val("");
+						if(data == "") {
+							mode = "insert";
+
+						} else {
+							mode = "update";
+							var msgg = data.split("}");
+							calendarid = msgg[0];
+							jQuery("#stafcalendar").val(msgg[1]);
+						}
+					},
+					error: function(xhr, type, errorThrown) {
+						return;
+
+					}
+				});
+
+			}
+
+			function searchcalJ() {
+
+				var $datepk = jQuery('#datepk');
+				var choosetime = $datepk.val();
+				var today = "";
+				var myDate = getNowFormatDate();
+				if(choosetime == "") {
+					today = myDate;
+					$datepk.val(myDate.substr(0, 10));
+					choosetime = $datepk.val();
+				} else {
+					today = choosetime + " 00:00:00";
+				}
+
+				if(choosetime != "undefined") {
+					var d1 = new Date(choosetime.replace(/\-/g, "\/")); //判断是否是以前的一天
+					var d2 = new Date(myDate.replace(/\-/g, "\/"));
+
+					if(d1 < d2) {
+						jQuery("#planflag").addClass("mui-active");
+						jQuery("#planflag").css("transform", "translate(16px, 0px)");
+
+						isdone = "1";
+					}
+				}
+
+				var url = "http://114.215.94.229/tydtdailynotephp/searchcal.php";
+
+				var data = {
+					userid: userid,
+					projectname: projectid,
+					choosetime: choosetime,
+					isdone: isdone
+				};
+				mui.ajax(url, {
+					data: data,
+					dataType: 'text',
+					type: 'POST',
+					timeout: 10000,
+					success: function(data) {
+						jQuery("#stafcalendar").val("");
+						if(data == "") {
+							mode = "insert";
+
+						} else {
+							mode = "update";
+							var msgg = data.split("}");
+							calendarid = msgg[0];
+							jQuery("#stafcalendar").val(msgg[1]);
+						}
+					},
+					error: function(xhr, type, errorThrown) {
+						return;
+
+					}
+				});
+
+			}
+
+			function showplan() {
+				var todays = new Date();
+				var h = todays.getHours();
+				var m = todays.getMinutes();
+
+				if(h > 17) {
+					jQuery("#planflag").addClass("mui-active");
+					isdone = "1";
+				} else if(h == 17) {
+					if(m > 30) {
+						jQuery("#planflag").addClass("mui-active");
+						isdone = "1";
+					} else {
+
+						jQuery("#planflag").removeClass("mui-active");
+						isdone = "0";
+					}
+				} else {
+					jQuery("#planflag").removeClass("mui-active");
+					isdone = "0";
+				}
+
+			}
+
+			function ChangePlan() {
+
+				if(jQuery("#planflag").hasClass("mui-active")) {
+					isdone = "1";
+					searchcal();
+				} else {
+					isdone = "0";
+					searchcal();
+				}
+			}
+
+			function savecalendar() //保存、更新、删除个人日志
+			{
+				var starttime = $("#datepk").val();
+				if(starttime != "" && starttime != null) {
+					var subject = $("#stafcalendar").val();
+					starttime += " 00:00:00";
+					var url = "http://114.215.94.229/tydtdailynotephp/upload.php";
+
+					var data = {
+						subject: subject,
+						location: projectid,
+						masterid: 8,
+						calendartype: 1,
+						starttime: starttime,
+						endtime: starttime,
+						isalldayevent: 1,
+						hasattachment: 0,
+						instancetype: 0,
+						upaccount: userid,
+						upname: department,
+						mode: mode,
+						calendarid: calendarid,
+						isdone: isdone
+					};
+					mui.ajax(url, {
+						data: data,
+						dataType: 'text',
+						type: 'POST',
+						timeout: 10000,
+						success: function(data) {
+							location.reload();
+							if(data == 1)
+								mui.alert("保存成功！");
+							else
+								mui.alert("保存失败！");
+						},
+						error: function(xhr, type, errorThrown) {
+							return;
+
+						}
+					});
+
+				}
+			}
+
+			function deletecal() //删除日志
+			{
+				mode = "delete";
+				savecalendar();
+
+			}
+		</script>
+	</body>
+
+</html>

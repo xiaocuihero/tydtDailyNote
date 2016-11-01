@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="./css/app.css" />-->
+		<link rel="stylesheet" type="text/css" href="./css/mui.picker.min.css" />
+		<link rel="stylesheet" href="./css/main.css">
+
+	</head>
+
+	<body>
+
+		<div class="mui-navbar-inner mui-bar mui-bar-nav">
+			<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>返回
+			</button>
+			<h1 class="mui-center mui-title">今日工作</h1>
+		</div>
+		<br/>
+		<div class="mui-content" >
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label>日期</label>
+					<input type="text" readonly="readonly" id='datepk' data-options='{"type":"date","beginYear":2016,"endYear":2016}' style="text-align:right;">
+
+				</div>
+				<div class="mui-input-row">
+					<label>计划/完成</label>
+					<div id="planflag" class="mui-switch mui-switch-mini " style="text-align:center;">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</div>
+			</form>
+			<br />
+			<ul class="mui-table-view" id="TodayList"></ul>
+		</div>
+		<script src="./js/mui.min.js"></script>
+		<script src="./js/mui.picker.min.js"></script>
+		<script src='./libs/easymob-webim-sdk/jquery-1.11.1.js'></script>
+		<script src="./js/main.js"></script>
+		<script>
+			(function($) {
+				$.init();
+				var datepk = $('#datepk')[0];
+				datepk.addEventListener('tap', function() {
+					var optionsJson = this.getAttribute('data-options') || '{}';
+					var options = JSON.parse(optionsJson);
+					var picker = new $.DtPicker(options);
+					picker.show(function(rs) {
+						jQuery('#datepk').val(rs.text);
+						picker.dispose();
+						isrefresh = false;
+						everyonelist();
+					});
+				}, false);
+				var planflag = $('#planflag')[0];
+				planflag.addEventListener('tap', function() {
+					ChangePlan();
+
+				}, false);
+
+			})(mui);
+			var nowDate = getNowFormatDate();
+			jQuery('#datepk').val(nowDate.substr(0, 10));
+			var isdone = "";
+			var isrefresh = true;
+			showplan();
+			everyonelist();
+
+			function everyonelist() {
+				var choosetime = jQuery("#datepk").val();
+				var today = "";
+				var myDate = getNowFormatDate();
+				if(choosetime == "") {
+					today = myDate;
+					jQuery("#datepk").val(myDate.substr(0, 10));
+				} else {
+					today = choosetime + " 00:00:00";
+				}
+
+				var url = "http://114.215.94.229/tydtdailynotephp/everyonelist.php";
+				var data = {};
+				if(isrefresh) {
+					data = {
+						today: today,
+						isdone: isdone
+					};
+				} else {
+					isrefresh = true;
+					jQuery("#planflag").addClass("mui-active");
+					isdone = "1";
+					data = {
+						today: today,
+						isdone: isdone
+					};
+				}
+				mui.ajax(url, {
+					data: data,
+					dataType: 'text', //服务器返回json格式数据  
+					type: 'POST', //HTTP请求类型  
+					timeout: 10000, //超时时间设置为10秒；  
+					success: function(data) {
+						var msgg = data.split("{");
+						jQuery("#TodayList").empty(); //清空列表
+						jQuery("#TodayList").append("<ul>"); //重写列表<ul><li></li></ul>
+
+						for(var i = 0; i < msgg.length - 1; i++) {
+							var msggg = msgg[i].split("}");
+
+							jQuery("#TodayList").append("<li class='mui-table-view-cell'><div class='item-inner'><div style='width:20%;float: left;'>" + msggg[0] + "</div><div style='width:80%;float: right;'><div class='item-input'>" + msggg[1] + "</div></div></div></li>");
+						}
+						jQuery("#TodayList").append("</ul>");
+
+					},
+					error: function(xhr, type, errorThrown) {
+						return alert("error");
+					}
+				});
+			}
+
+			function showplan() {
+				var todays = new Date();
+				var h = todays.getHours();
+				var m = todays.getMinutes();
+
+				if(h > 17) {
+					jQuery("#planflag").addClass("mui-active");
+					isdone = "1";
+				} else if(h == 17) {
+					if(m > 30) {
+						jQuery("#planflag").addClass("mui-active");
+						isdone = "1";
+					} else {
+
+						jQuery("#planflag").removeClass("mui-active");
+						isdone = "0";
+					}
+				} else {
+					jQuery("#planflag").removeClass("mui-active");
+					isdone = "0";
+				}
+
+			}
+
+			function ChangePlan() {
+
+				if(jQuery("#planflag").hasClass("mui-active")) {
+					//jQuery("#planflag").removeClass("mui-active");
+					isdone = "1";
+					everyonelist();
+				} else {
+					//jQuery("#planflag").addClass("mui-active");
+					isdone = "0";
+					everyonelist();
+				}
+			}
+		</script>
+	</body>
+
+</html>
