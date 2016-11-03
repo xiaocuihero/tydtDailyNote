@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<!--标准mui.css-->
+		<link rel="stylesheet" href="./css/mui.min.css">
+		<!--App自定义的css-->
+		<!--<link rel="stylesheet" type="text/css" href="./css/app.css" />-->
+		<link rel="stylesheet" type="text/css" href="./css/mui.picker.min.css" />
+		<link rel="stylesheet" href="./css/main.css">
+
+	</head>
+
+	<body>
+
+		<div class="mui-navbar-inner mui-bar mui-bar-nav">
+			<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>返回
+			</button>
+			<h1 class="mui-center mui-title">今日工作</h1>
+		</div>
+		<br/>
+		<div class="mui-content">
+			<form class="mui-input-group">
+				<div class="mui-input-row">
+					<label>日期</label>
+					<input type="text" readonly="readonly" id='datepk' data-options='{"type":"date","beginYear":2016,"endYear":2016}' style="text-align:right;">
+				</div>
+				<div class="mui-input-row">
+					<label>计划/完成</label>
+					<div id="planflag" class="mui-switch mui-switch-mini " style="text-align:center;">
+						<div class="mui-switch-handle"></div>
+					</div>
+				</div>
+			</form>
+			<br />
+			<ul class="mui-table-view" id="TodayList"></ul>
+		</div>
+		<script src="./js/mui.min.js"></script>
+		<script src="./js/mui.picker.min.js"></script>
+		<script src='./libs/easymob-webim-sdk/jquery-1.11.1.js'></script>
+		<script src="./js/main.js"></script>
+		<script>
+			function getQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+				var r = window.location.search.substr(1).match(reg);
+				if(r != null) return unescape(r[2]);
+				return null;
+			}
+			
+			console.log(getQueryString("id"));
+		</script>
+	</body>
+
+</html>

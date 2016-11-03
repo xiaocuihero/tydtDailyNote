@@ -41,7 +41,7 @@
 				</div>
 			</form>
 			<br />
-			<ul class="mui-table-view" id="TodayList"></ul>
+			<ul class="mui-table-view mui-table-view-condensed" id="TodayList"></ul>
 		</div>
 		<script src="./js/mui.min.js"></script>
 		<script src="./js/mui.picker.min.js"></script>
@@ -116,7 +116,10 @@
 						for(var i = 0; i < msgg.length - 1; i++) {
 							var msggg = msgg[i].split("}");
 
-							jQuery("#TodayList").append("<li class='mui-table-view-cell'><div class='item-inner'><div style='width:20%;float: left;'>" + msggg[0] + "</div><div style='width:80%;float: right;'><div class='item-input'>" + msggg[1] + "</div></div></div></li>");
+							jQuery("#TodayList").append("<li class='mui-table-view-cell'><div class='item-inner'><div style='width:20%;float: left;'>" + msggg[0] + "</div><div style='width:80%;float: right;'>"
+							+ "<a style='color: black;' class='mui-navigate-right' href='Commit.html?user="+msggg[0]+"&msg="+msggg[1]+"'>" + msggg[1]
+							+ "<div class='item-input'>"
+							+ "</a></div></div></div></li>");
 						}
 						jQuery("#TodayList").append("</ul>");
 

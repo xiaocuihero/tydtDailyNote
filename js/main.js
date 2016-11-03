@@ -18,3 +18,7 @@ function getNowFormatDate() {
 	return currentdate;
 }
 
+var urlTest = "php/test.php";
+
+var urlPHPRoot = "/php/";
+//var urlPHPRoot = "http://114.215.94.229/tydtdailynotephp/";

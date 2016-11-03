@@ -254,7 +254,8 @@
 					"js/mui.min.js",
 					"fonts/mui.ttf",
 					"css/mui.min.css",
-					"libs/easymob-webim-sdk/jquery-1.11.1.js"
+					"libs/easymob-webim-sdk/jquery-1.11.1.js",
+					"Commit.html"
 				],
 				"refer": [],
 				"priority": 0
@@ -280,6 +281,13 @@
 					"js/mui.min.js",
 					"fonts/mui.ttf",
 					"css/mui.min.css"
+				],
+				"refer": [],
+				"priority": 0
+			},
+			"Commit.html": {
+				"resources": [
+					"today.html"
 				],
 				"refer": [],
 				"priority": 0

@@ -72,7 +72,11 @@
       "js/mui.min.js",
       "fonts/mui.ttf",
       "css/mui.min.css",
-      "libs/easymob-webim-sdk/jquery-1.11.1.js"
+      "libs/easymob-webim-sdk/jquery-1.11.1.js",
+      "Commit.html"
+    ],
+    "refer": [
+      "Commit.html"
     ]
   },
   "StaffCalendar.html": {
@@ -94,6 +98,14 @@
       "js/mui.min.js",
       "fonts/mui.ttf",
       "css/mui.min.css"
+    ]
+  },
+  "Commit.html": {
+    "resources": [
+      "today.html"
+    ],
+    "refer": [
+      "today.html"
     ]
   }
 }
